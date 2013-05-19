@@ -1,0 +1,199 @@
+<!DOCTYPE html>  <html> <head>   <title>drug-groups.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="announcement.html">                 announcement.coffee               </a>                                           <a class="source" href="api.html">                 api.coffee               </a>                                           <a class="source" href="app-info.html">                 app-info.coffee               </a>                                           <a class="source" href="drug-groups.html">                 drug-groups.coffee               </a>                                           <a class="source" href="drugs.html">                 drugs.coffee               </a>                                           <a class="source" href="media.html">                 media.coffee               </a>                                           <a class="source" href="messages.html">                 messages.coffee               </a>                                           <a class="source" href="pages.html">                 pages.coffee               </a>                                           <a class="source" href="specializations.html">                 specializations.coffee               </a>                                           <a class="source" href="subsidized-drugs.html">                 subsidized-drugs.coffee               </a>                                           <a class="source" href="user-roles.html">                 user-roles.coffee               </a>                                           <a class="source" href="users.html">                 users.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               drug-groups.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="nv">DrugGroups  = </span><span class="nx">require</span> <span class="s">&#39;../models/drug-groups&#39;</span>
+<span class="nv">Drugs       = </span><span class="nx">require</span> <span class="s">&#39;../models/drugs&#39;</span>
+<span class="nv">_         = </span><span class="nx">require</span> <span class="s">&#39;lodash&#39;</span>
+<span class="nv">AppInfo   = </span><span class="nx">require</span> <span class="s">&#39;../models/app-info&#39;</span>
+<span class="nv">Specializations = </span><span class="nx">require</span> <span class="s">&#39;../models/specializations&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>TODO: clean up</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">getOurDrugs = </span><span class="nf">(cb)-&gt;</span>
+  <span class="nx">Drugs</span><span class="p">.</span><span class="nx">find</span><span class="p">({})</span>
+    <span class="p">.</span><span class="nx">sort</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">populate</span><span class="p">(</span><span class="s">&#39;relatedDrugs&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">exec</span> <span class="nx">cb</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>TODO: test
+TODO: przerzucić pobieranie powiązanych przez EAN leków do tej metody, 
+zamiast aktualizaowania ich przy każdej akcji (import / save), por. controllers/drugs</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">generateList = </span><span class="nf">(req, res)-&gt;</span>
+  <span class="nx">Drugs</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <ol>
+<li>Wypisujemy wszystkie <strong>nasze</strong> leki (tylko takie posiadają powiązane kody ean) </li>
+</ol>             </td>             <td class="code">               <div class="highlight"><pre>    <span class="p">.</span><span class="nx">find</span><span class="p">({</span><span class="nv">ourDrug : </span><span class="kc">yes</span><span class="p">})</span>
+    <span class="p">.</span><span class="nx">exec</span> <span class="nf">(err, drugs)-&gt;</span>
+      <span class="nv">filteredDrugs = </span><span class="nx">_</span><span class="p">.</span><span class="nx">groupBy</span> <span class="nx">drugs</span><span class="p">,</span> <span class="s">&#39;name&#39;</span>
+      <span class="nv">drugGroupsToSave = </span><span class="p">[]</span>
+
+      <span class="nx">Specializations</span><span class="p">.</span><span class="nx">find</span> <span class="p">{},</span> <span class="nf">(err, specializations)-&gt;</span>
+
+
+        <span class="k">for</span> <span class="nx">k</span><span class="p">,</span> <span class="nx">v</span> <span class="k">of</span> <span class="nx">filteredDrugs</span>
+          <span class="nv">currDrug  = </span><span class="nx">filteredDrugs</span><span class="p">[</span><span class="nx">k</span><span class="p">][</span><span class="mi">0</span><span class="p">]</span></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <h2>Ważne</h2>
+
+<p>Łączymy wszystkie powiązane leki dla każdego z wariantów, przykładowo:
+Dla leku A 50 mg oraz leku A 100mg tworzymy grupę <strong>A</strong>, w której umieszczamy
+leki powiązane z A 50 mg oraz A 100 mg. Jednocześnie usuwamy pozycje powtarzające się. </p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nv">uniqueDrugList = </span><span class="nx">_</span><span class="p">.</span><span class="nx">unique</span> <span class="nx">_</span><span class="p">.</span><span class="nx">flatten</span> <span class="nx">_</span><span class="p">.</span><span class="nx">map</span> <span class="nx">filteredDrugs</span><span class="p">[</span><span class="nx">k</span><span class="p">],</span> <span class="nf">(fD)-&gt;</span> <span class="nx">fD</span><span class="p">.</span><span class="nx">relatedDrugs</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>Do listy dopisujemy również warianty leku głównego 
+(uprzednio dodaliśmy jedynie leki z nimi powiązane).</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nx">_</span><span class="p">.</span><span class="nx">each</span> <span class="nx">filteredDrugs</span><span class="p">[</span><span class="nx">k</span><span class="p">],</span> <span class="nf">(fD)-&gt;</span> 
+            <span class="nx">console</span><span class="p">.</span><span class="nx">log</span>  <span class="nx">fD</span><span class="p">.</span><span class="nx">_id</span>
+            <span class="nx">uniqueDrugList</span><span class="p">.</span><span class="nx">push</span> <span class="nx">fD</span><span class="p">.</span><span class="nx">_id</span>
+
+          <span class="nv">props     = </span>
+            <span class="nv">title: </span><span class="nx">currDrug</span><span class="p">.</span><span class="nx">name</span>
+            <span class="nv">drugs: </span><span class="nx">uniqueDrugList</span></pre></div>             </td>           </tr>                               <tr id="section-7">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-7">&#182;</a>               </div>               <h2>Przypisywanie specjalizacji</h2>
+
+<p>Jeśli specjalizacja o określonej nazwie znajduje się w bazie, dopisujemy jej _id w powiązaniu.</p>             </td>             <td class="code">               <div class="highlight"><pre>          <span class="nv">foundSpecialization = </span><span class="nx">_</span><span class="p">.</span><span class="nx">find</span> <span class="nx">specializations</span><span class="p">,</span> <span class="nf">(sp)-&gt;</span> <span class="nx">sp</span><span class="p">.</span><span class="nx">name</span> <span class="o">is</span> <span class="nx">currDrug</span><span class="p">.</span><span class="nx">specialization</span><span class="o">?</span><span class="p">.</span><span class="nx">trim</span><span class="p">()</span>
+          <span class="k">if</span> <span class="nx">foundSpecialization</span> <span class="k">then</span> <span class="nv">props.specialization = </span><span class="nx">foundSpecialization</span>
+
+          <span class="nv">dg = </span><span class="k">new</span> <span class="nx">DrugGroups</span> <span class="nx">props</span>
+          <span class="nx">drugGroupsToSave</span><span class="p">.</span><span class="nx">push</span> <span class="nx">dg</span>
+
+        <span class="nx">DrugGroups</span><span class="p">.</span><span class="nx">remove</span> <span class="p">{},</span> <span class="nf">(err)-&gt;</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;DrugGroups::removed()&#39;</span>
+          <span class="k">if</span> <span class="nx">err</span> <span class="k">then</span> <span class="k">throw</span> <span class="nx">err</span>
+          <span class="nx">DrugGroups</span><span class="p">.</span><span class="nx">create</span> <span class="nx">drugGroupsToSave</span><span class="p">,</span> <span class="nf">(err, savedDrugGroups)-&gt;</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">savedDrugGroups</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      
+
+
+<span class="nv">update = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nv">callback = </span><span class="nf">(err, updatedDrugGroup)-&gt;</span>
+    <span class="k">if</span> <span class="nx">err</span> 
+      <span class="k">throw</span> <span class="nx">err</span>
+      <span class="nv">errMsg = </span>
+        <span class="nv">message: </span><span class="s">&#39;not saved&#39;</span>
+        <span class="nv">params: </span><span class="nx">err</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="mi">500</span><span class="p">,</span> <span class="nx">errMsg</span>
+      <span class="k">return</span> <span class="kc">off</span>
+    <span class="k">if</span> <span class="nx">updatedDrugGroup</span> <span class="o">and</span> <span class="nx">updatedDrugGroup</span><span class="p">.</span><span class="nx">_id</span>
+      <span class="nx">DrugGroups</span>
+        <span class="p">.</span><span class="nx">findOne</span><span class="p">({</span> <span class="nv">_id: </span><span class="nx">updatedDrugGroup</span><span class="p">.</span><span class="nx">_id</span> <span class="p">})</span> 
+        <span class="p">.</span><span class="nx">populate</span><span class="p">(</span><span class="s">&#39;drugs&#39;</span><span class="p">)</span>
+        <span class="p">.</span><span class="nx">populate</span><span class="p">(</span><span class="s">&#39;specialization&#39;</span><span class="p">)</span>
+        <span class="p">.</span><span class="nx">exec</span> <span class="nf">(err, updatedPopulatedDrugGroup)-&gt;</span>
+          <span class="k">if</span> <span class="nx">err</span> <span class="k">then</span> <span class="k">throw</span> <span class="nx">err</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">dir</span> <span class="nx">arguments</span>
+          <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;drugGroup updated.&#39;</span>
+          <span class="nx">AppInfo</span><span class="p">.</span><span class="nx">updateAppVersion</span> <span class="nf">-&gt;</span>
+            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span> <span class="nx">updatedPopulatedDrugGroup</span>
+    <span class="k">else</span>
+      <span class="nv">errMsg = </span>
+        <span class="nv">message : </span><span class="s">&#39;not saved&#39;</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="mi">404</span><span class="p">,</span> <span class="nx">errMsg</span>
+
+
+
+  <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">drugs</span><span class="o">?</span> <span class="o">and</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">drugs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">if</span> <span class="nx">_</span><span class="p">.</span><span class="nx">isString</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">drugs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="nv">req.drugGroup.drugs = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">drugs</span>
+    <span class="k">else</span> <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">drugs</span><span class="p">[</span><span class="mi">0</span><span class="p">].</span><span class="nx">_id</span>
+      <span class="nv">req.drugGroup.drugs = </span><span class="nx">_</span><span class="p">.</span><span class="nx">pluck</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">drugs</span><span class="p">,</span> <span class="s">&#39;_id&#39;</span>
+
+  <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">title</span><span class="o">?</span>
+    <span class="nv">req.drugGroup.title = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">title</span>
+  <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">info</span><span class="o">?</span>
+    <span class="nv">req.drugGroup.info = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">info</span>
+  <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">logoResourceId</span><span class="o">?</span>
+    <span class="nv">req.drugGroup.logoResourceId = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">logoResourceId</span>
+  <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">productPageLogoResourceId</span><span class="o">?</span>
+    <span class="nv">req.drugGroup.productPageLogoResourceId = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">productPageLogoResourceId</span>
+  <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">chplResourceId</span><span class="o">?</span>
+    <span class="nv">req.drugGroup.chplResourceId = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">chplResourceId</span>
+  <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">silResourceId</span><span class="o">?</span>
+    <span class="nv">req.drugGroup.silResourceId = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">silResourceId</span>
+  <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">active</span><span class="o">?</span>
+    <span class="nv">req.drugGroup.active = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">active</span>
+  <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">specialization</span><span class="o">?</span>
+      <span class="k">if</span> <span class="k">typeof</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">specialization</span> <span class="o">is</span> <span class="s">&quot;String&quot;</span>
+        <span class="nv">req.drugGroup.specialization = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">specialization</span>
+      <span class="k">else</span> <span class="k">if</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">specialization</span><span class="p">.</span><span class="nx">_id</span>
+        <span class="nv">req.drugGroup.specialization = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">specialization</span><span class="p">.</span><span class="nx">_id</span>    
+    
+
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">req</span><span class="p">.</span><span class="nx">drugGroup</span>
+  <span class="nx">req</span><span class="p">.</span><span class="nx">drugGroup</span><span class="p">.</span><span class="nx">save</span> <span class="nx">callback</span>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<span class="nv">add     = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nv">drugGroupData = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span>
+  <span class="nv">drugGroup = </span><span class="k">new</span> <span class="nx">DrugGroups</span> <span class="nx">drugGroupData</span>
+
+  <span class="nx">drugGroup</span><span class="p">.</span><span class="nx">save</span> <span class="nf">(err, docs)-&gt;</span>
+    <span class="k">if</span> <span class="nx">err</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span>
+        <span class="nv">drugGroup: </span><span class="s">&#39;_error&#39;</span>
+        <span class="nv">params : </span><span class="nx">err</span>
+    <span class="k">else</span>
+      <span class="nx">AppInfo</span><span class="p">.</span><span class="nx">updateAppVersion</span> <span class="nf">-&gt;</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">drugGroup</span>
+
+
+<span class="nv">remove  = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nx">DrugGroups</span><span class="p">.</span><span class="nx">remove</span> <span class="p">{</span><span class="nv">_id: </span><span class="nx">req</span><span class="p">.</span><span class="nx">drugGroup</span><span class="p">.</span><span class="nx">_id</span><span class="p">},</span> <span class="nf">(err)-&gt;</span>
+    <span class="nx">AppInfo</span><span class="p">.</span><span class="nx">updateAppVersion</span> <span class="nf">-&gt;</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span>
+        <span class="nv">message : </span><span class="s">&#39;ok&#39;</span>
+
+
+
+<span class="nv">index = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nx">DrugGroups</span><span class="p">.</span><span class="nx">find</span><span class="p">({})</span>
+    <span class="p">.</span><span class="nx">sort</span><span class="p">(</span><span class="s">&#39;-dateCreated&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">populate</span><span class="p">(</span><span class="s">&#39;specialization&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">exec</span> <span class="nf">(err, drugGroup)-&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-8">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-8">&#182;</a>               </div>               <p>TODO: if err</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="k">if</span> <span class="nx">err</span> <span class="k">then</span> <span class="k">throw</span> <span class="nx">err</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">drugGroup</span>
+
+
+
+<span class="nv">getSingle = </span><span class="nf">(req, res)-&gt;</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">req</span><span class="p">.</span><span class="nx">drugGroup</span>
+
+<span class="nv">setup = </span><span class="nf">(app)-&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-9">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-9">&#182;</a>               </div>               <p>TODO: autoryzacja
+app.get '/drug-groups', index</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">app</span><span class="p">.</span><span class="nx">param</span> <span class="s">&#39;drugGroupId&#39;</span><span class="p">,</span> <span class="nf">(req, res, next, drugGroupId)-&gt;</span>
+    <span class="nx">DrugGroups</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nv">_id: </span><span class="nx">drugGroupId</span><span class="p">})</span></pre></div>             </td>           </tr>                               <tr id="section-10">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-10">&#182;</a>               </div>               <p>.populate('specializations')</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="p">.</span><span class="nx">populate</span><span class="p">(</span><span class="s">&#39;drugs&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">populate</span><span class="p">(</span><span class="s">&#39;specialization&#39;</span><span class="p">)</span>
+      <span class="p">.</span><span class="nx">exec</span> <span class="nf">(err, drugGroup)-&gt;</span>
+        <span class="k">if</span> <span class="nx">err</span> <span class="k">then</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">err</span>
+        <span class="nv">req.drugGroup = </span><span class="nx">drugGroup</span>
+        <span class="nx">next</span><span class="p">()</span>
+
+
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;/drug-groups/clear&#39;</span><span class="p">,</span> <span class="nf">(req, res)-&gt;</span> <span class="nx">DrugGroups</span><span class="p">.</span><span class="nx">remove</span> <span class="p">{},</span> <span class="nf">-&gt;</span> <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="s">&#39;ok&#39;</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;/drug-groups/import&#39;</span><span class="p">,</span> <span class="nx">generateList</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;/drug-groups&#39;</span><span class="p">,</span> <span class="nx">index</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">delete</span> <span class="s">&#39;/drug-groups/:drugGroupId&#39;</span><span class="p">,</span> <span class="nx">remove</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">post</span> <span class="s">&#39;/drug-groups&#39;</span><span class="p">,</span> <span class="nx">add</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">post</span> <span class="s">&#39;/drug-groups/:drugGroupId&#39;</span><span class="p">,</span> <span class="nx">update</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;/drug-groups/:drugGroupId&#39;</span><span class="p">,</span> <span class="nx">getSingle</span>
+    
+<span class="nv">module.exports = </span><span class="nx">setup</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

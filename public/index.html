@@ -1,0 +1,165 @@
+<!doctype html>
+<html>
+<head>
+  <title>API</title>
+</head>
+
+<body>
+  <style>
+    @import url(http://fonts.googleapis.com/css?family=Open+Sans:300,400);
+    @import url(http://daneden.me/animate/animate.css);
+
+    .hero{
+      -webkit-animation: fadeInUp;
+      -webkit-animation-duration: 1s;
+
+      width: 100%;
+      max-width: 640px;
+      margin: 200px auto 0;
+      padding: 10px;
+      box-sizing: border-box;
+    }
+
+    body, html{
+      margin: 0;
+      padding: 0;
+      font-size: 16px;
+      font-family: 'Open Sans', sans-serif ;
+      line-height: 1.5;
+      background-color: #fafafa;
+      color: #2f2f2f;
+      font-weight: 400;
+    }
+
+    h1{
+      font-size: 48px;
+      font-weight: 300;
+    }
+
+
+    .result-container{
+      display: none;
+      width:    100%;
+      height:   100%;
+      position: absolute;
+      z-index:  10;
+      left:     0;
+      top:      0;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .result-container pre{
+      margin: 0;
+      overflow-x: hidden;
+      border-radius: 4px;
+      width: 100%;
+      height: 100%;
+      background-color: #3f3f3f;
+      color: #f0f0f0;
+      font-size: 12px;
+      font-family: consolas, sans-serif;
+    }
+
+    .result-container.active{
+      -webkit-animation: fadeInLeft;
+      -webkit-animation-duration: 1s;
+      display: block;
+    }
+
+    .btn-result-container-close{
+      position: absolute;
+      top:              20px;
+      right:            20px;
+      background-color: rgb(255, 20, 0);
+      color:            white;
+      border:           none;
+      display:          block;
+      width:            32px;
+      height:           32px;
+      font-size:        16px;
+    }
+    .url{
+      width: 100%;
+      line-height: 2em;
+      padding: 10px;
+      box-sizing: border-box;
+      font-size: 16px;
+    }
+
+    .btn-load{
+      width: 100%;
+      padding: 20px;
+      background-color: #357ae8;
+      color: white;
+      border:none;
+      box-sizing: border-box;
+    }
+    
+
+    .form.active{
+      opacity: .5;
+      -webkit-transform: scale(.95) translateY(10px);
+    }
+
+    .form{
+      -webkit-transition: .4s all;
+    }
+  </style>
+
+
+  <div class="hero">
+    <h1>Welcome</h1>
+    <p>Application is ready.</p>
+
+    <form class="form">
+      <input class="url" type="text" value="https://api.twitter.com/1/statuses/user_timeline.json?include_entities=true&include_rts=true&screen_name=paprikkastudio">
+      <button type="submit" class="btn-load">Load</button>
+    </form>
+    <div class="result-container">
+      <button class="btn-result-container-close">&times;</button>
+      <pre>
+        
+      </pre>
+    </div>
+  </div>
+
+  <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+  <script>
+    App = function() {
+      var 
+        $btn                      = $('.btn-load')
+      , $input                    = $('.url')
+      , $form                     = $('.form')
+      , $resultContainer          = $('.result-container')
+      , $resultContainerClose     = $('.btn-result-container-close')
+      , $result                   = $resultContainer.find('pre')
+      ;
+
+      $form.submit(function(e) {
+        console.log('Load data...')
+        $form.addClass('active');
+        $.get('proxy/' + $input.val()).success(function(data){
+          console.log('Data loaded...')
+          $result.html(JSON.stringify(data, null, 4));
+          $resultContainer.addClass('active');
+          $form.removeClass('active');
+        });
+
+        e.preventDefault();
+      }).error(function(err){
+        alert(err);
+          $resultContainer.addClass('active');
+          $form.removeClass('active');
+      })
+
+      $resultContainerClose.click(function(){
+        $resultContainer.removeClass('active');
+      })
+
+    };
+
+    $(App);
+  </script>
+</body>
+</html>

@@ -1,0 +1,24 @@
+{
+  "name": "express-api-template",
+  "version": "0.0.2",
+  "private": true,
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "coffee-script":                  "*",
+    "express":                        "3.1.0",
+    "jade":                           "*",
+    "lodash":                         "*",
+    "mongoose":                       "*",
+    "connect-mongo":                  "*",
+    "q":                              ">=0.9.0",
+    "redis":                          "0.8.2",
+    "connect-redis":                  "*"
+    },
+  "devDependencies":{
+    "docco":    "*",
+    "nodemon":  ">=0.7.2",
+    "nodetime": "*"
+  }
+}

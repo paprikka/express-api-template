@@ -1,0 +1,118 @@
+<!DOCTYPE html>  <html> <head>   <title>media.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="announcement.html">                 announcement.coffee               </a>                                           <a class="source" href="api.html">                 api.coffee               </a>                                           <a class="source" href="app-info.html">                 app-info.coffee               </a>                                           <a class="source" href="drug-groups.html">                 drug-groups.coffee               </a>                                           <a class="source" href="drugs.html">                 drugs.coffee               </a>                                           <a class="source" href="media.html">                 media.coffee               </a>                                           <a class="source" href="messages.html">                 messages.coffee               </a>                                           <a class="source" href="pages.html">                 pages.coffee               </a>                                           <a class="source" href="specializations.html">                 specializations.coffee               </a>                                           <a class="source" href="subsidized-drugs.html">                 subsidized-drugs.coffee               </a>                                           <a class="source" href="user-roles.html">                 user-roles.coffee               </a>                                           <a class="source" href="users.html">                 users.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               media.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="nv">fs        = </span><span class="nx">require</span> <span class="s">&#39;fs&#39;</span>
+<span class="nv">Media     = </span><span class="nx">require</span> <span class="s">&#39;../models/media&#39;</span>
+<span class="nv">_         = </span><span class="nx">require</span> <span class="s">&#39;lodash&#39;</span>
+
+<span class="nv">rimraf = </span><span class="nx">require</span> <span class="s">&#39;rimraf&#39;</span>
+
+<span class="nv">easyimage   = </span><span class="nx">require</span> <span class="s">&#39;easyimage&#39;</span>
+
+<span class="nv">add = </span><span class="nf">(req, res, next)-&gt;</span>
+
+  <span class="nv">sendResponse = </span><span class="nf">(resFile)-&gt;</span>
+    <span class="nv">mediaItem = </span><span class="k">new</span> <span class="nx">Media</span> <span class="nx">resFile</span>
+    <span class="nx">mediaItem</span><span class="p">.</span><span class="nx">save</span> <span class="nf">(err, docs)-&gt;</span>
+      <span class="k">if</span> <span class="nx">err</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">json</span>
+          <span class="nv">message: </span><span class="s">&#39;_error&#39;</span>
+          <span class="nv">params : </span><span class="nx">err</span>
+      <span class="k">else</span>
+        <span class="nx">Media</span><span class="p">.</span><span class="nx">findById</span> <span class="nx">mediaItem</span><span class="p">,</span> <span class="nf">(err, doc)-&gt;</span>
+          <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="p">[</span><span class="nx">doc</span><span class="p">]</span>
+
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;-------- media upload ---------&#39;</span>
+  <span class="nv">fileInfo = </span><span class="nx">req</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">files</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+  <span class="nv">tmpPath = </span><span class="nx">fileInfo</span><span class="p">.</span><span class="nx">path</span>
+  <span class="nv">now = </span><span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+
+  <span class="nv">name = </span><span class="nx">fileInfo</span><span class="p">.</span><span class="nx">name</span>
+
+  <span class="nv">targetPath = </span><span class="s">&quot;./public/media/</span><span class="si">#{</span><span class="nx">now</span><span class="si">}</span><span class="s">/</span><span class="si">#{</span><span class="nx">fileInfo</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="s">&quot;</span>
+
+  <span class="nx">fs</span><span class="p">.</span><span class="nx">mkdirSync</span> <span class="s">&quot;./public/media/</span><span class="si">#{</span><span class="nx">now</span><span class="si">}</span><span class="s">&quot;</span>
+  <span class="nx">fs</span><span class="p">.</span><span class="nx">rename</span> <span class="nx">tmpPath</span><span class="p">,</span> <span class="nx">targetPath</span><span class="p">,</span> <span class="nf">(err)-&gt;</span>
+
+    <span class="k">if</span> <span class="nx">err</span>
+      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;MediaController::add::error - rename&#39;</span>
+      <span class="k">throw</span> <span class="nx">err</span>
+    
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">unlink</span> <span class="nx">tmpPath</span><span class="p">,</span> <span class="nf">-&gt;</span>
+      <span class="k">if</span> <span class="nx">err</span> <span class="k">then</span> <span class="k">throw</span> <span class="nx">err</span>
+
+      <span class="nv">resFile =</span>
+        <span class="nv">location: </span><span class="nx">targetPath</span>
+        <span class="nv">added: </span>     <span class="k">new</span> <span class="nb">Date</span>
+        <span class="nv">name: </span>      <span class="nx">fileInfo</span><span class="p">.</span><span class="nx">name</span>
+        <span class="nv">size: </span>      <span class="nx">fileInfo</span><span class="p">.</span><span class="nx">size</span>
+        <span class="nv">type: </span>      <span class="nx">fileInfo</span><span class="p">.</span><span class="nx">type</span>
+        <span class="nv">url: </span>       <span class="s">&quot;/media/</span><span class="si">#{</span><span class="nx">now</span><span class="si">}</span><span class="s">/</span><span class="si">#{</span><span class="nx">fileInfo</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="s">&quot;</span>
+        <span class="nv">deleteUrl: </span> <span class="s">&quot;/media/</span><span class="si">#{</span><span class="nx">now</span><span class="si">}</span><span class="s">/</span><span class="si">#{</span><span class="nx">fileInfo</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="s">&quot;</span>
+
+
+      <span class="k">if</span> <span class="nx">resFile</span><span class="p">.</span><span class="nx">type</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span> <span class="o">is</span> <span class="s">&#39;image&#39;</span> 
+        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;MediaController::add - uploaded image&#39;</span>
+        <span class="nv">thumbnailTargetLocation = </span><span class="s">&quot;./public/media/</span><span class="si">#{</span><span class="nx">now</span><span class="si">}</span><span class="s">/mini_</span><span class="si">#{</span><span class="nx">fileInfo</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="s">&quot;</span>
+        <span class="nv">imgOptions = </span>
+          <span class="nv">src: </span><span class="s">&quot;./public/media/</span><span class="si">#{</span><span class="nx">now</span><span class="si">}</span><span class="s">/</span><span class="si">#{</span><span class="nx">fileInfo</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="s">&quot;</span>
+          <span class="nv">dst: </span><span class="nx">thumbnailTargetLocation</span>
+          <span class="nv">width: </span><span class="mi">248</span>
+
+        <span class="nx">easyimage</span><span class="p">.</span><span class="nx">rescrop</span> <span class="nx">imgOptions</span><span class="p">,</span> <span class="nf">-&gt;</span>
+          <span class="nv">resFile.thumbnailUrl = </span><span class="s">&quot;/media/</span><span class="si">#{</span><span class="nx">now</span><span class="si">}</span><span class="s">/mini_</span><span class="si">#{</span><span class="nx">fileInfo</span><span class="p">.</span><span class="nx">name</span><span class="si">}</span><span class="s">&quot;</span>
+          <span class="nv">resFile.thumbnailLocation = </span><span class="nx">thumbnailTargetLocation</span>
+          <span class="nx">sendResponse</span> <span class="nx">resFile</span>
+      <span class="k">else</span>
+        <span class="nx">sendResponse</span> <span class="nx">resFile</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>else</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">remove  = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nv">dirToRemove = </span><span class="nx">req</span><span class="p">.</span><span class="nx">media</span><span class="p">.</span><span class="nx">location</span><span class="p">.</span><span class="nx">split</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+  <span class="nx">dirToRemove</span><span class="p">.</span><span class="nx">pop</span><span class="p">()</span>
+  <span class="nv">dirToRemove = </span><span class="nx">dirToRemove</span><span class="p">.</span><span class="nx">join</span><span class="p">(</span><span class="s">&#39;/&#39;</span><span class="p">)</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">fs</span><span class="p">.</span><span class="nx">lstatSync</span> <span class="nx">dirToRemove</span>
+  <span class="nx">rimraf</span> <span class="nx">dirToRemove</span><span class="p">,</span> <span class="nf">-&gt;</span>
+    <span class="nx">Media</span><span class="p">.</span><span class="nx">remove</span> <span class="p">{</span><span class="nv">_id: </span><span class="nx">req</span><span class="p">.</span><span class="nx">media</span><span class="p">.</span><span class="nx">_id</span><span class="p">},</span> <span class="nf">(err)-&gt;</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span>
+        <span class="nv">message : </span><span class="s">&#39;ok&#39;</span>
+
+
+<span class="nv">index = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nx">Media</span><span class="p">.</span><span class="nx">find</span><span class="p">({})</span>
+    <span class="p">.</span><span class="nx">sort</span><span class="p">(</span><span class="s">&#39;-added&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">exec</span> <span class="nf">(err, docs)-&gt;</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">docs</span>
+      <span class="k">if</span> <span class="nx">err</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">err</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>Media.find {}, (err, docs)->
+  res.json docs
+  if err
+    res.json err</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">preview = </span><span class="nf">(req, res)-&gt;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;MediaController::preview&#39;</span>
+  <span class="k">try</span>
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">lstatSync</span> <span class="nx">req</span><span class="p">.</span><span class="nx">media</span><span class="p">.</span><span class="nx">location</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">sendfile</span> <span class="nx">req</span><span class="p">.</span><span class="nx">media</span><span class="p">.</span><span class="nx">location</span><span class="p">,</span> <span class="nf">(err)-&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;MediaController::preview::error &#39;</span> <span class="o">+</span> <span class="nx">err</span>
+  <span class="k">catch</span> <span class="nx">err</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span> <span class="mi">404</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span> <span class="nx">err</span>
+
+<span class="nv">previewThumbnail = </span><span class="nf">(req, res)-&gt;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;MediaController::previewThumbnail&#39;</span>
+  <span class="k">try</span>
+    <span class="nx">fs</span><span class="p">.</span><span class="nx">lstatSync</span> <span class="nx">req</span><span class="p">.</span><span class="nx">media</span><span class="p">.</span><span class="nx">thumbnailLocation</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">sendfile</span> <span class="nx">req</span><span class="p">.</span><span class="nx">media</span><span class="p">.</span><span class="nx">thumbnailLocation</span><span class="p">,</span> <span class="nf">(err)-&gt;</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;MediaController::previewThumbnail::error &#39;</span> <span class="o">+</span> <span class="nx">err</span>
+  <span class="k">catch</span> <span class="nx">err</span>
+    <span class="k">throw</span> <span class="nx">err</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;MediaController::previewThumbnail:: not found: &#39;</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span> <span class="mi">404</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span> <span class="nx">err</span>
+
+
+<span class="nv">setup = </span><span class="nf">(app)-&gt;</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">param</span> <span class="s">&#39;mediaId&#39;</span><span class="p">,</span> <span class="nf">(req, res, next, mediaId)-&gt;</span>
+    <span class="nx">Media</span><span class="p">.</span><span class="nx">find</span> <span class="p">{</span><span class="nv">_id: </span><span class="nx">mediaId</span><span class="p">},</span> <span class="nf">(err, docs)-&gt;</span>
+      <span class="nv">req.media = </span><span class="nx">docs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="nx">next</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-4">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-4">&#182;</a>               </div>               <p>app.post '/media/:mediaId', update</p>             </td>             <td class="code">               <div class="highlight"><pre></pre></div>             </td>           </tr>                               <tr id="section-5">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-5">&#182;</a>               </div>               <p>app.post '/upload/media-images', uploadMediaImage  </p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">app</span><span class="p">.</span><span class="nx">post</span> <span class="s">&#39;/media/upload&#39;</span><span class="p">,</span> <span class="nx">add</span>    
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;/media&#39;</span><span class="p">,</span> <span class="nx">index</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;/media/preview-thumbnail/:mediaId&#39;</span><span class="p">,</span> <span class="nx">previewThumbnail</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;/media/preview/:mediaId&#39;</span><span class="p">,</span> <span class="nx">preview</span></pre></div>             </td>           </tr>                               <tr id="section-6">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-6">&#182;</a>               </div>               <p>app.get '/media/:mediaId', getSingle</p>             </td>             <td class="code">               <div class="highlight"><pre>  <span class="nx">app</span><span class="p">.</span><span class="nx">delete</span> <span class="s">&#39;/media/:mediaId&#39;</span><span class="p">,</span> <span class="nx">remove</span>
+
+
+  <span class="nx">app</span><span class="p">.</span><span class="nx">post</span> <span class="s">&#39;/media/delete&#39;</span><span class="p">,</span> <span class="nf">(req, res)-&gt;</span> 
+    <span class="nx">Media</span><span class="p">.</span><span class="nx">remove</span> <span class="p">{},</span> <span class="nf">-&gt;</span> <span class="nx">res</span><span class="p">.</span><span class="nx">send</span> <span class="s">&#39;ok&#39;</span>    
+
+<span class="nv">module.exports = </span><span class="nx">setup</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

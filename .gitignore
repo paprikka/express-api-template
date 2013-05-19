@@ -1,0 +1,10 @@
+/vendor/*     # ignore all external submodules
+/public/*     # static files
+./README.md   # a specific file
+*.css         # ignore any CSS files too
+
+node_modules/
+tmp/
+logs/
+public/media/
+webapp/dump.rdb

@@ -1,0 +1,29 @@
+<!DOCTYPE html>  <html> <head>   <title>index.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="config.html">                 config.coffee               </a>                                           <a class="source" href="index.html">                 index.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               index.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="nv">express   = </span><span class="nx">require</span> <span class="s">&#39;express&#39;</span>
+<span class="nv">http      = </span><span class="nx">require</span> <span class="s">&#39;http&#39;</span>
+<span class="nv">path      = </span><span class="nx">require</span> <span class="s">&#39;path&#39;</span>
+<span class="nv">config    = </span><span class="nx">require</span> <span class="s">&#39;./config&#39;</span>
+
+
+
+
+
+<span class="nv">app = </span><span class="nx">express</span><span class="p">()</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <h2>Apply config:</h2>             </td>             <td class="code">               <div class="highlight"><pre><span class="nx">config</span><span class="p">.</span><span class="nx">set</span> <span class="nx">app</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <h2>Init controllers:</h2>             </td>             <td class="code">               <div class="highlight"><pre><span class="p">(</span><span class="nx">require</span><span class="p">(</span><span class="s">&quot;./controllers/</span><span class="si">#{</span><span class="nx">name</span><span class="si">}</span><span class="s">&quot;</span><span class="p">)(</span><span class="nx">app</span><span class="p">)</span> <span class="k">for</span> <span class="nx">name</span> <span class="k">in</span> <span class="p">[</span>
+  <span class="s">&quot;api&quot;</span>
+  <span class="s">&quot;app-info&quot;</span>
+  <span class="s">&quot;announcement&quot;</span>
+  <span class="s">&quot;drugs&quot;</span>
+  <span class="s">&quot;subsidized-drugs&quot;</span>
+  <span class="s">&quot;pages&quot;</span>
+  <span class="s">&quot;users&quot;</span>
+  <span class="s">&quot;messages&quot;</span>
+  <span class="s">&quot;specializations&quot;</span>
+  <span class="s">&quot;user-roles&quot;</span>
+  <span class="s">&quot;media&quot;</span>
+
+<span class="p">])</span>
+
+<span class="nx">http</span><span class="p">.</span><span class="nx">createServer</span><span class="p">(</span><span class="nx">app</span><span class="p">)</span>
+  <span class="p">.</span><span class="nx">listen</span> <span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s">&#39;port&#39;</span><span class="p">),</span> <span class="nf">-&gt;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;(COFFEE) Express server listening on port &#39;</span>  <span class="o">+</span> <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;port&#39;</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

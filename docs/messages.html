@@ -1,0 +1,80 @@
+<!DOCTYPE html>  <html> <head>   <title>messages.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="announcement.html">                 announcement.coffee               </a>                                           <a class="source" href="api.html">                 api.coffee               </a>                                           <a class="source" href="app-info.html">                 app-info.coffee               </a>                                           <a class="source" href="drug-groups.html">                 drug-groups.coffee               </a>                                           <a class="source" href="drugs.html">                 drugs.coffee               </a>                                           <a class="source" href="media.html">                 media.coffee               </a>                                           <a class="source" href="messages.html">                 messages.coffee               </a>                                           <a class="source" href="pages.html">                 pages.coffee               </a>                                           <a class="source" href="specializations.html">                 specializations.coffee               </a>                                           <a class="source" href="subsidized-drugs.html">                 subsidized-drugs.coffee               </a>                                           <a class="source" href="user-roles.html">                 user-roles.coffee               </a>                                           <a class="source" href="users.html">                 users.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               messages.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>                            </td>             <td class="code">               <div class="highlight"><pre><span class="nv">Messages = </span><span class="nx">require</span> <span class="s">&#39;../models/messages&#39;</span>
+<span class="nv">Users = </span><span class="nx">require</span> <span class="s">&#39;../controllers/users&#39;</span>
+<span class="nv">form  = </span><span class="nx">require</span> <span class="s">&#39;express-form&#39;</span>
+<span class="nv">field = </span><span class="nx">form</span><span class="p">.</span><span class="nx">field</span>
+<span class="nv">_ = </span><span class="nx">require</span> <span class="s">&#39;lodash&#39;</span>
+
+
+<span class="nv">index = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nx">Messages</span><span class="p">.</span><span class="nx">find</span><span class="p">({})</span>
+    <span class="p">.</span><span class="nx">sort</span><span class="p">(</span><span class="s">&#39;date&#39;</span><span class="p">)</span>
+    <span class="p">.</span><span class="nx">exec</span> <span class="nf">(err, docs)-&gt;</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">docs</span>
+      <span class="k">if</span> <span class="nx">err</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">err</span>
+
+<span class="nv">getSingle = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">dir</span> <span class="nx">req</span>
+  <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">req</span><span class="p">.</span><span class="nx">message</span>
+
+
+<span class="nv">update = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nv">query = </span>
+    <span class="nv">_id : </span><span class="nx">req</span><span class="p">.</span><span class="nx">message</span><span class="p">.</span><span class="nx">_id</span>
+
+  <span class="nv">values = </span>
+    <span class="nv">title: </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">title</span>
+    <span class="nv">content: </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">content</span>
+    <span class="nv">specializationId: </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">specializationId</span>
+    <span class="nv">active: </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">active</span>
+
+  <span class="nv">callback = </span><span class="nf">(err, docs)-&gt;</span>
+    <span class="k">if</span> <span class="nx">err</span> <span class="k">then</span> <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">err</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="s">&#39;message updated callback&#39;</span>
+    <span class="nx">console</span><span class="p">.</span><span class="nx">dir</span> <span class="nx">arguments</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">send</span> <span class="nx">docs</span>
+
+
+  <span class="nx">Messages</span><span class="p">.</span><span class="nx">findOne</span> <span class="nx">query</span><span class="p">,</span> <span class="nf">(err, doc)-&gt;</span>
+    <span class="nv">doc.title = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">title</span>
+    <span class="nv">doc.content = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">content</span>
+    <span class="nv">doc.specializationId = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">specializationId</span>
+    <span class="nv">doc.active = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">active</span>    
+    <span class="nv">doc.date = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">date</span>   
+    <span class="nx">doc</span><span class="p">.</span><span class="nx">save</span> <span class="nx">callback</span>
+
+<span class="nv">add     = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nv">b = </span><span class="nx">req</span><span class="p">.</span><span class="nx">body</span>
+  <span class="nv">messageData = </span><span class="nx">b</span>
+  <span class="nv">message = </span><span class="k">new</span> <span class="nx">Messages</span> <span class="nx">messageData</span>
+
+  <span class="nx">message</span><span class="p">.</span><span class="nx">save</span> <span class="nf">(err, docs)-&gt;</span>
+    <span class="k">if</span> <span class="nx">err</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span>
+        <span class="nv">message: </span><span class="s">&#39;_error&#39;</span>
+        <span class="nv">params : </span><span class="nx">err</span>
+    <span class="k">else</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span> <span class="nx">message</span>
+
+<span class="nv">edit    = </span><span class="nf">(req, res, next)-&gt;</span>
+
+<span class="nv">remove  = </span><span class="nf">(req, res, next)-&gt;</span>
+  <span class="nx">Messages</span><span class="p">.</span><span class="nx">remove</span> <span class="p">{</span><span class="nv">_id: </span><span class="nx">req</span><span class="p">.</span><span class="nx">message</span><span class="p">.</span><span class="nx">_id</span><span class="p">},</span> <span class="nf">(err)-&gt;</span>
+    <span class="nx">res</span><span class="p">.</span><span class="nx">json</span>
+      <span class="nv">message : </span><span class="s">&#39;ok&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>res.json req.message</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">MessageModel = </span><span class="k">new</span> <span class="nx">Messages</span>
+
+<span class="nv">setup = </span><span class="nf">(app)-&gt;</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">param</span> <span class="s">&#39;messageId&#39;</span><span class="p">,</span> <span class="nf">(req, res, next, messageId)-&gt;</span>
+    <span class="nx">Messages</span><span class="p">.</span><span class="nx">find</span> <span class="p">{</span><span class="nv">_id: </span><span class="nx">messageId</span><span class="p">},</span> <span class="nf">(err, docs)-&gt;</span></pre></div>             </td>           </tr>                               <tr id="section-3">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-3">&#182;</a>               </div>               <p>res.send docs[0]</p>             </td>             <td class="code">               <div class="highlight"><pre>      <span class="nv">req.message = </span><span class="nx">docs</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+      <span class="nx">next</span><span class="p">()</span>
+
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;/messages&#39;</span><span class="p">,</span> <span class="nx">app</span><span class="p">.</span><span class="nx">authenticate</span><span class="p">,</span> <span class="nx">index</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">post</span> <span class="s">&#39;/messages&#39;</span><span class="p">,</span> <span class="nx">app</span><span class="p">.</span><span class="nx">authenticate</span><span class="p">,</span> <span class="nx">add</span>
+
+  <span class="nx">app</span><span class="p">.</span><span class="nx">post</span> <span class="s">&#39;/messages/:messageId&#39;</span><span class="p">,</span> <span class="nx">app</span><span class="p">.</span><span class="nx">authenticate</span><span class="p">,</span> <span class="nx">update</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">delete</span> <span class="s">&#39;/messages/:messageId&#39;</span><span class="p">,</span> <span class="nx">app</span><span class="p">.</span><span class="nx">authenticate</span><span class="p">,</span> <span class="nx">remove</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;/messages/:messageId&#39;</span><span class="p">,</span> <span class="nx">app</span><span class="p">.</span><span class="nx">authenticate</span><span class="p">,</span> <span class="nx">getSingle</span>
+    
+<span class="nv">module.exports = </span><span class="nx">setup</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 

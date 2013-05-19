@@ -1,0 +1,6 @@
+/vendor/*
+/tmp/*
+/public/*
+./server.js
+./.git/*
+/tmp/*

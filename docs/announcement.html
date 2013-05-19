@@ -1,0 +1,31 @@
+<!DOCTYPE html>  <html> <head>   <title>announcement.coffee</title>   <meta http-equiv="content-type" content="text/html; charset=UTF-8">   <link rel="stylesheet" media="all" href="docco.css" /> </head> <body>   <div id="container">     <div id="background"></div>            <div id="jump_to">         Jump To &hellip;         <div id="jump_wrapper">           <div id="jump_page">                                           <a class="source" href="announcement.html">                 announcement.coffee               </a>                                           <a class="source" href="api.html">                 api.coffee               </a>                                           <a class="source" href="app-info.html">                 app-info.coffee               </a>                                           <a class="source" href="drug-groups.html">                 drug-groups.coffee               </a>                                           <a class="source" href="drugs.html">                 drugs.coffee               </a>                                           <a class="source" href="media.html">                 media.coffee               </a>                                           <a class="source" href="messages.html">                 messages.coffee               </a>                                           <a class="source" href="pages.html">                 pages.coffee               </a>                                           <a class="source" href="specializations.html">                 specializations.coffee               </a>                                           <a class="source" href="subsidized-drugs.html">                 subsidized-drugs.coffee               </a>                                           <a class="source" href="user-roles.html">                 user-roles.coffee               </a>                                           <a class="source" href="users.html">                 users.coffee               </a>                        </div>         </div>       </div>          <table cellpadding="0" cellspacing="0">       <thead>         <tr>           <th class="docs">             <h1>               announcement.coffee             </h1>           </th>           <th class="code">           </th>         </tr>       </thead>       <tbody>                               <tr id="section-1">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-1">&#182;</a>               </div>               <p>Q       = require 'q'</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">redis   = </span><span class="nx">require</span> <span class="s">&#39;redis&#39;</span>
+<span class="nv">AppInfo = </span><span class="nx">require</span> <span class="s">&#39;../models/app-info&#39;</span></pre></div>             </td>           </tr>                               <tr id="section-2">             <td class="docs">               <div class="pilwrap">                 <a class="pilcrow" href="#section-2">&#182;</a>               </div>               <p>TODO production config vars</p>             </td>             <td class="code">               <div class="highlight"><pre><span class="nv">client = </span><span class="nx">redis</span><span class="p">.</span><span class="nx">createClient</span><span class="p">()</span>
+
+
+<span class="nv">get = </span><span class="nf">(req, res)-&gt;</span>
+  <span class="nx">client</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;announcement content&#39;</span><span class="p">,</span> <span class="nf">(err, result)-&gt;</span>
+    <span class="nv">content = </span><span class="nx">result</span>
+    <span class="nx">client</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;announcement date&#39;</span><span class="p">,</span> <span class="nf">(err, result)-&gt;</span>
+      <span class="nv">date = </span><span class="nx">result</span>
+      <span class="nx">res</span><span class="p">.</span><span class="nx">json</span>
+        <span class="nv">content: </span> <span class="nx">content</span>
+        <span class="nv">date: </span>    <span class="nx">date</span>
+
+
+<span class="nv">set = </span><span class="nf">(req, res)-&gt;</span>
+  <span class="nx">console</span><span class="p">.</span><span class="nx">log</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span>
+  <span class="nx">client</span><span class="p">.</span><span class="nx">set</span> <span class="s">&#39;announcement content&#39;</span><span class="p">,</span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">content</span><span class="p">,</span> <span class="nf">-&gt;</span>
+    <span class="nx">client</span><span class="p">.</span><span class="nx">set</span> <span class="s">&#39;announcement date&#39;</span><span class="p">,</span> <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">(),</span> <span class="nf">-&gt;</span>
+      <span class="nx">AppInfo</span><span class="p">.</span><span class="nx">updateAppVersion</span> <span class="nf">-&gt;</span>
+        <span class="nx">res</span><span class="p">.</span><span class="nx">json</span>
+          <span class="nv">content: </span> <span class="nx">req</span><span class="p">.</span><span class="nx">body</span><span class="p">.</span><span class="nx">content</span>
+          <span class="nv">date: </span>    <span class="nb">Date</span><span class="p">.</span><span class="nx">now</span><span class="p">()</span>
+
+
+<span class="nv">setup = </span><span class="nf">(app)-&gt;</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">get</span> <span class="s">&#39;/announcement&#39;</span><span class="p">,</span> <span class="nx">get</span>
+  <span class="nx">app</span><span class="p">.</span><span class="nx">post</span> <span class="s">&#39;/announcement&#39;</span><span class="p">,</span> <span class="nx">set</span>
+
+<span class="nv">module.exports = </span><span class="nx">setup</span>
+
+</pre></div>             </td>           </tr>                </tbody>     </table>   </div> </body> </html> 
